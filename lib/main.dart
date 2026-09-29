@@ -7,6 +7,8 @@ void main() {
 }
 
 // Function asynchronous untuk memuat data JSON statik
+// CATATAN KASUS C: Untuk menguji error state pada Tahap 15,
+// ubah sementara path di bawah ini menjadi nama file yang salah (misal: 'assets/data/student_data_salah.json')
 Future<Map<String, dynamic>> loadStudentData() async {
   final jsonString = await rootBundle.loadString(
     'assets/data/student_data.json',
@@ -68,14 +70,14 @@ class _DashboardPageState extends State<DashboardPage> {
         child: FutureBuilder<Map<String, dynamic>>(
           future: studentFuture,
           builder: (context, snapshot) {
-            // 1. Kondisi Loading
+            // 1. Loading State
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
                 child: CircularProgressIndicator(),
               );
             }
 
-            // 2. Kondisi Error
+            // 2. KASUS C: Error State (Menangani kesalahan bila JSON gagal dimuat)
             if (snapshot.hasError) {
               return Center(
                 child: Padding(
@@ -89,10 +91,19 @@ class _DashboardPageState extends State<DashboardPage> {
                         size: 48,
                       ),
                       const SizedBox(height: 12),
+                      const Text(
+                        'Terjadi Kesalahan!',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
                       Text(
-                        'Gagal memuat data:\n${snapshot.error}',
+                        'Detail Error:\n${snapshot.error}',
                         textAlign: TextAlign.center,
-                        style: const TextStyle(color: Colors.red),
+                        style: const TextStyle(color: Colors.black87),
                       ),
                     ],
                   ),
@@ -100,12 +111,12 @@ class _DashboardPageState extends State<DashboardPage> {
               );
             }
 
-            // 3. Kondisi Data Sukses
+            // 3. Success State
             final data = snapshot.data!;
             final student = data['student'] as Map<String, dynamic>;
             final courses = data['courses'] as List<dynamic>;
 
-            // Kalkulasi ringkasan data (Summary)
+            // Kalkulasi ringkasan data
             final int totalCourses = courses.length;
             final int totalCredits = courses.fold<int>(
               0,
@@ -159,7 +170,6 @@ class _DashboardPageState extends State<DashboardPage> {
                                   ),
                                 ),
                                 const SizedBox(height: 4),
-                                // Menampilkan Prodi dan Semester 5 tanpa error null
                                 Text(
                                   '${student['prodi'] ?? 'Pendidikan Teknik Informatika'} • Semester ${student['semester'] ?? 5}',
                                   style: TextStyle(
@@ -176,9 +186,38 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
                   ),
 
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 10),
 
-                  // ================= Bagian 2: Summary Row (3 Cards) =================
+                  // ================= KASUS A: Uji & Solusi RenderFlex Overflow =================
+                  // Kode Row dengan teks panjang yang dibungkus Expanded agar tidak overflow
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.amber.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.amber.shade300),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.info, color: Colors.amber, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            '${student['nim']} - ${student['name']} - Ini adalah pengujian teks panjang yang aman dari RenderFlex overflow.',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.amber.shade900,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // ================= Bagian 2: Summary Row =================
                   Row(
                     children: [
                       _buildSummaryCard(
@@ -204,7 +243,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     ],
                   ),
 
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 16),
 
                   // Header List
                   const Text(
@@ -291,7 +330,7 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  // REUSABLE FUNCTION 2: Item List Card dengan Conditional UI
+  // REUSABLE FUNCTION 2: Item List Card
   Widget _buildCourseItemCard(Map<String, dynamic> course) {
     final String status = course['status'] as String? ?? 'planned';
     final String grade = course['grade'] as String? ?? '-';
