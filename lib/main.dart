@@ -39,6 +39,9 @@ class HomePage extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
+              // ==========================
+              // CARD PROFIL
+              // ==========================
               Card(
                 elevation: 5,
                 shape: RoundedRectangleBorder(
@@ -80,30 +83,9 @@ class HomePage extends StatelessWidget {
 
                       const Text(
                         'Mahasiswa PTI Undiksha',
-                        style: TextStyle(fontSize: 16),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _buildStatistic(
-                            '15',
-                            'Widget',
-                            Colors.blue,
-                          ),
-                          _buildStatistic(
-                            '8',
-                            'Layout',
-                            Colors.green,
-                          ),
-                          _buildStatistic(
-                            '3',
-                            'State',
-                            Colors.deepPurple,
-                          ),
-                        ],
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
                       ),
                     ],
                   ),
@@ -112,6 +94,40 @@ class HomePage extends StatelessWidget {
 
               const SizedBox(height: 20),
 
+              // ==========================
+              // STATISTIK (Reusable Widget)
+              // ==========================
+              Row(
+                children: [
+                  buildStatCard(
+                    '15',
+                    'Widget',
+                    Icons.widgets,
+                  ),
+
+                  const SizedBox(width: 8),
+
+                  buildStatCard(
+                    '8',
+                    'Layout',
+                    Icons.view_quilt,
+                  ),
+
+                  const SizedBox(width: 8),
+
+                  buildStatCard(
+                    '3',
+                    'State',
+                    Icons.sync,
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+
+              // ==========================
+              // RINGKASAN
+              // ==========================
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
@@ -129,7 +145,9 @@ class HomePage extends StatelessWidget {
                       color: Colors.orange,
                       size: 40,
                     ),
+
                     SizedBox(height: 10),
+
                     Text(
                       'Ringkasan',
                       style: TextStyle(
@@ -137,7 +155,9 @@ class HomePage extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+
                     SizedBox(height: 10),
+
                     Text(
                       'Saya memiliki minat dalam pemrograman mobile menggunakan Flutter karena mampu membangun aplikasi yang modern, responsif, dan bermanfaat dalam bidang pendidikan.',
                       textAlign: TextAlign.center,
@@ -148,9 +168,15 @@ class HomePage extends StatelessWidget {
 
               const SizedBox(height: 20),
 
+              // ==========================
+              // EMAIL
+              // ==========================
               Card(
                 child: ListTile(
-                  leading: const Icon(Icons.email, color: Colors.blue),
+                  leading: const Icon(
+                    Icons.email,
+                    color: Colors.blue,
+                  ),
                   title: const Text('Email'),
                   subtitle: const Text(
                     'darmawan@student.undiksha.ac.id',
@@ -160,19 +186,33 @@ class HomePage extends StatelessWidget {
 
               const SizedBox(height: 10),
 
+              // ==========================
+              // LOKASI
+              // ==========================
               Card(
                 child: ListTile(
-                  leading: const Icon(Icons.location_on, color: Colors.red),
+                  leading: const Icon(
+                    Icons.location_on,
+                    color: Colors.red,
+                  ),
                   title: const Text('Lokasi'),
-                  subtitle: const Text('Karangasem, Bali'),
+                  subtitle: const Text(
+                    'Karangasem, Bali',
+                  ),
                 ),
               ),
 
               const SizedBox(height: 10),
 
+              // ==========================
+              // PROGRAM STUDI
+              // ==========================
               Card(
                 child: ListTile(
-                  leading: const Icon(Icons.school, color: Colors.green),
+                  leading: const Icon(
+                    Icons.school,
+                    color: Colors.green,
+                  ),
                   title: const Text('Program Studi'),
                   subtitle: const Text(
                     'Pendidikan Teknik Informatika',
@@ -186,24 +226,56 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildStatistic(
-    String number,
+  // ======================================================
+  // REUSABLE WIDGET
+  // ======================================================
+  Widget buildStatCard(
+    String value,
     String label,
-    Color color,
+    IconData icon,
   ) {
-    return Column(
-      children: [
-        Text(
-          number,
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: color,
+    return Expanded(
+      child: Card(
+        elevation: 3,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: 16,
+            horizontal: 10,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 32,
+                color: Colors.blue,
+              ),
+
+              const SizedBox(height: 8),
+
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 5),
+
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 15,
+                ),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 5),
-        Text(label),
-      ],
+      ),
     );
   }
 }
