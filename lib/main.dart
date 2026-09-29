@@ -29,7 +29,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Data collection topics untuk Tahap 10
+    // 1. Data collection topics
     final List<Map<String, dynamic>> topics = [
       {
         'title': 'Git & GitHub',
@@ -52,6 +52,9 @@ class HomePage extends StatelessWidget {
         'done': false,
       },
     ];
+
+    // 2. Hitung jumlah item selesai menggunakan where().length (Tahap 11)
+    final int completed = topics.where((item) => item['done'] == true).length;
 
     return Scaffold(
       appBar: AppBar(
@@ -174,8 +177,8 @@ class HomePage extends StatelessWidget {
               const SizedBox(height: 20),
 
               // ================= Info Cards (Tahap 7) =================
-              Card(
-                child: const ListTile(
+              const Card(
+                child: ListTile(
                   leading: Icon(Icons.email, color: Colors.blue),
                   title: Text('Email'),
                   subtitle: Text('darmawan@student.undiksha.ac.id'),
@@ -184,8 +187,8 @@ class HomePage extends StatelessWidget {
 
               const SizedBox(height: 10),
 
-              Card(
-                child: const ListTile(
+              const Card(
+                child: ListTile(
                   leading: Icon(Icons.location_on, color: Colors.red),
                   title: Text('Lokasi'),
                   subtitle: Text('Karangasem, Bali'),
@@ -194,8 +197,8 @@ class HomePage extends StatelessWidget {
 
               const SizedBox(height: 10),
 
-              Card(
-                child: const ListTile(
+              const Card(
+                child: ListTile(
                   leading: Icon(Icons.school, color: Colors.green),
                   title: Text('Program Studi'),
                   subtitle: Text('Pendidikan Teknik Informatika'),
@@ -204,7 +207,7 @@ class HomePage extends StatelessWidget {
 
               const SizedBox(height: 20),
 
-              // ================= TAHAP 10: Collection List (ListView.builder) =================
+              // ================= TAHAP 11: List Lebih Informatif =================
               Card(
                 elevation: 4,
                 shape: RoundedRectangleBorder(
@@ -215,42 +218,82 @@ class HomePage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Identitas tetap tampil di atas daftar
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: Text(
-                          'Daftar Topik Pembelajaran\n$studentId - $studentName',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      // Header Identitas
+                      Text(
+                        '$studentId - $studentName',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
+                      const SizedBox(height: 4),
+                      // Teks ringkasan data collection: "x dari y topik selesai"
+                      Text(
+                        '$completed dari ${topics.length} topik selesai',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.blue.shade700,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
                       const Divider(),
-                      // ListView.builder untuk merender collection topics
+                      const SizedBox(height: 6),
+                      // ListView.builder dengan item Card & Conditional UI
                       ListView.builder(
-                        shrinkWrap: true, // Membatasi tinggi ListView agar mengikuti isi
-                        physics: const NeverScrollableScrollPhysics(), // Menyerahkan scroll ke SingleChildScrollView utama
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
                         itemCount: topics.length,
                         itemBuilder: (context, index) {
                           final item = topics[index];
-                          return ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: Icon(
-                              item['done'] == true
-                                  ? Icons.check_circle
-                                  : Icons.circle_outlined,
-                              color: item['done'] == true
-                                  ? Colors.green
-                                  : Colors.grey,
+                          final bool isDone = item['done'] == true;
+
+                          return Card(
+                            elevation: 2,
+                            margin: const EdgeInsets.symmetric(vertical: 6),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            title: Text(
-                              item['title'] as String,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
+                            child: ListTile(
+                              // Status icon kondisional (check_circle vs schedule)
+                              leading: Icon(
+                                isDone ? Icons.check_circle : Icons.schedule,
+                                color: isDone ? Colors.green : Colors.orange,
+                              ),
+                              title: Text(
+                                item['title'] as String,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              subtitle: Text(item['subtitle'] as String),
+                              // Trailing text status kondisional (Selesai vs Belum)
+                              trailing: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isDone
+                                      ? Colors.green.shade50
+                                      : Colors.orange.shade50,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: isDone ? Colors.green : Colors.orange,
+                                  ),
+                                ),
+                                child: Text(
+                                  isDone ? 'Selesai' : 'Belum',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDone
+                                        ? Colors.green.shade800
+                                        : Colors.orange.shade800,
+                                  ),
+                                ),
                               ),
                             ),
-                            subtitle: Text(item['subtitle'] as String),
                           );
                         },
                       ),
