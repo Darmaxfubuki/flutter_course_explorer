@@ -1,10 +1,20 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 const String studentName = 'I Ketut Darmawan Wirakusuma';
 const String studentId = '2415051021';
 
 void main() {
   runApp(const MyApp());
+}
+
+// Function pembaca JSON statik (Tahap 12)
+Future<Map<String, dynamic>> loadStudentData() async {
+  final jsonString = await rootBundle.loadString(
+    'assets/data/student_data.json',
+  );
+  return jsonDecode(jsonString) as Map<String, dynamic>;
 }
 
 class MyApp extends StatelessWidget {
@@ -24,12 +34,30 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    // Membaca file JSON statik saat pertama kali dijalankan (Tahap 12)
+    loadStudentData().then((data) {
+      debugPrint('=== VERIFIKASI TAHAP 12 ===');
+      debugPrint('JSON berhasil dimuat: ${data['student']}');
+      debugPrint('Jumlah courses: ${(data['courses'] as List).length}');
+    }).catchError((error) {
+      debugPrint('Error saat memuat JSON: $error');
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // 1. Data collection topics
+    // Data collection topics
     final List<Map<String, dynamic>> topics = [
       {
         'title': 'Git & GitHub',
@@ -53,7 +81,6 @@ class HomePage extends StatelessWidget {
       },
     ];
 
-    // 2. Hitung jumlah item selesai menggunakan where().length (Tahap 11)
     final int completed = topics.where((item) => item['done'] == true).length;
 
     return Scaffold(
@@ -66,7 +93,7 @@ class HomePage extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              // ================= Kartu Profil (Tahap 5 & 7) =================
+              // ================= Kartu Profil =================
               Card(
                 elevation: 5,
                 shape: RoundedRectangleBorder(
@@ -111,32 +138,20 @@ class HomePage extends StatelessWidget {
 
               const SizedBox(height: 20),
 
-              // ================= Stat Cards (Tahap 6 & 8) =================
+              // ================= Stat Cards =================
               Row(
                 children: [
-                  buildStatCard(
-                    '15',
-                    'Widget',
-                    Icons.widgets,
-                  ),
+                  buildStatCard('15', 'Widget', Icons.widgets),
                   const SizedBox(width: 8),
-                  buildStatCard(
-                    '8',
-                    'Layout',
-                    Icons.view_quilt,
-                  ),
+                  buildStatCard('8', 'Layout', Icons.view_quilt),
                   const SizedBox(width: 8),
-                  buildStatCard(
-                    '3',
-                    'State',
-                    Icons.sync,
-                  ),
+                  buildStatCard('3', 'State', Icons.sync),
                 ],
               ),
 
               const SizedBox(height: 20),
 
-              // ================= Ringkasan (Tahap 7) =================
+              // ================= Ringkasan =================
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
@@ -171,12 +186,12 @@ class HomePage extends StatelessWidget {
 
               const SizedBox(height: 20),
 
-              // ================= Greeting Card / Input State (Tahap 9) =================
+              // ================= Greeting Card =================
               const GreetingCard(),
 
               const SizedBox(height: 20),
 
-              // ================= Info Cards (Tahap 7) =================
+              // ================= Info Cards =================
               const Card(
                 child: ListTile(
                   leading: Icon(Icons.email, color: Colors.blue),
@@ -207,7 +222,7 @@ class HomePage extends StatelessWidget {
 
               const SizedBox(height: 20),
 
-              // ================= TAHAP 11: List Lebih Informatif =================
+              // ================= Daftar Topik (Tahap 11) =================
               Card(
                 elevation: 4,
                 shape: RoundedRectangleBorder(
@@ -218,7 +233,6 @@ class HomePage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Header Identitas
                       Text(
                         '$studentId - $studentName',
                         style: const TextStyle(
@@ -227,7 +241,6 @@ class HomePage extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      // Teks ringkasan data collection: "x dari y topik selesai"
                       Text(
                         '$completed dari ${topics.length} topik selesai',
                         style: TextStyle(
@@ -239,7 +252,6 @@ class HomePage extends StatelessWidget {
                       const SizedBox(height: 12),
                       const Divider(),
                       const SizedBox(height: 6),
-                      // ListView.builder dengan item Card & Conditional UI
                       ListView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
@@ -255,7 +267,6 @@ class HomePage extends StatelessWidget {
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: ListTile(
-                              // Status icon kondisional (check_circle vs schedule)
                               leading: Icon(
                                 isDone ? Icons.check_circle : Icons.schedule,
                                 color: isDone ? Colors.green : Colors.orange,
@@ -267,7 +278,6 @@ class HomePage extends StatelessWidget {
                                 ),
                               ),
                               subtitle: Text(item['subtitle'] as String),
-                              // Trailing text status kondisional (Selesai vs Belum)
                               trailing: Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 10,
