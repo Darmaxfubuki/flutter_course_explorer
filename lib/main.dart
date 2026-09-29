@@ -34,198 +34,176 @@ class HomePage extends StatelessWidget {
         title: const Text('Flutter UI Fundamentals'),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            // FOTO PROFIL
-            const CircleAvatar(
-              radius: 60,
-              backgroundImage: AssetImage(
-                'assets/images/profile.jpeg',
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // NAMA
-            const Text(
-              studentName,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            // NIM
-            const Text(
-              studentId,
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.grey,
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
-            const Text(
-              'Mahasiswa PTI Undiksha',
-              style: TextStyle(
-                fontSize: 17,
-              ),
-            ),
-
-            const SizedBox(height: 25),
-
-            // ==========================
-            // STATISTIK
-            // ==========================
-
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(
-                  vertical: 20,
-                  horizontal: 10,
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Card(
+                elevation: 5,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      const CircleAvatar(
+                        radius: 60,
+                        backgroundImage: AssetImage(
+                          'assets/images/profile.jpeg',
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      const Text(
+                        studentName,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      const Text(
+                        studentId,
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.grey,
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      const Text(
+                        'Mahasiswa PTI Undiksha',
+                        style: TextStyle(fontSize: 16),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _buildStatistic(
+                            '15',
+                            'Widget',
+                            Colors.blue,
+                          ),
+                          _buildStatistic(
+                            '8',
+                            'Layout',
+                            Colors.green,
+                          ),
+                          _buildStatistic(
+                            '3',
+                            'State',
+                            Colors.deepPurple,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(
+                    color: Colors.blue,
+                  ),
+                ),
+                child: const Column(
                   children: [
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '15',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue,
-                          ),
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          'Widget',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ],
+                    Icon(
+                      Icons.lightbulb,
+                      color: Colors.orange,
+                      size: 40,
                     ),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '8',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.green,
-                          ),
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          'Layout',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ],
+                    SizedBox(height: 10),
+                    Text(
+                      'Ringkasan',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '3',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.deepPurple,
-                          ),
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          'State',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ],
+                    SizedBox(height: 10),
+                    Text(
+                      'Saya memiliki minat dalam pemrograman mobile menggunakan Flutter karena mampu membangun aplikasi yang modern, responsif, dan bermanfaat dalam bidang pendidikan.',
+                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
               ),
-            ),
 
-            const SizedBox(height: 25),
+              const SizedBox(height: 20),
 
-            // EMAIL
-            Card(
-              elevation: 3,
-              child: ListTile(
-                leading: const Icon(
-                  Icons.email,
-                  color: Colors.blue,
-                ),
-                title: const Text('Email'),
-                subtitle: const Text(
-                  'darmawan@student.undiksha.ac.id',
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.email, color: Colors.blue),
+                  title: const Text('Email'),
+                  subtitle: const Text(
+                    'darmawan@student.undiksha.ac.id',
+                  ),
                 ),
               ),
-            ),
 
-            const SizedBox(height: 10),
+              const SizedBox(height: 10),
 
-            // LOKASI
-            Card(
-              elevation: 3,
-              child: ListTile(
-                leading: const Icon(
-                  Icons.location_on,
-                  color: Colors.red,
-                ),
-                title: const Text('Lokasi'),
-                subtitle: const Text(
-                  'Karangasem, Bali',
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.location_on, color: Colors.red),
+                  title: const Text('Lokasi'),
+                  subtitle: const Text('Karangasem, Bali'),
                 ),
               ),
-            ),
 
-            const SizedBox(height: 10),
+              const SizedBox(height: 10),
 
-            // PROGRAM STUDI
-            Card(
-              elevation: 3,
-              child: ListTile(
-                leading: const Icon(
-                  Icons.school,
-                  color: Colors.green,
-                ),
-                title: const Text('Program Studi'),
-                subtitle: const Text(
-                  'Pendidikan Teknik Informatika',
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.school, color: Colors.green),
+                  title: const Text('Program Studi'),
+                  subtitle: const Text(
+                    'Pendidikan Teknik Informatika',
+                  ),
                 ),
               ),
-            ),
-
-            const SizedBox(height: 10),
-
-            // MINAT
-            Card(
-              elevation: 3,
-              child: ListTile(
-                leading: const Icon(
-                  Icons.phone_android,
-                  color: Colors.deepPurple,
-                ),
-                title: const Text('Minat'),
-                subtitle: const Text(
-                  'Pemrograman Mobile menggunakan Flutter',
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildStatistic(
+    String number,
+    String label,
+    Color color,
+  ) {
+    return Column(
+      children: [
+        Text(
+          number,
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+        const SizedBox(height: 5),
+        Text(label),
+      ],
     );
   }
 }
