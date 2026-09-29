@@ -29,6 +29,30 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Data collection topics untuk Tahap 10
+    final List<Map<String, dynamic>> topics = [
+      {
+        'title': 'Git & GitHub',
+        'subtitle': 'Version control',
+        'done': true,
+      },
+      {
+        'title': 'Dart Fundamentals',
+        'subtitle': 'Language basics',
+        'done': true,
+      },
+      {
+        'title': 'Flutter UI Fundamentals',
+        'subtitle': 'Widgets & layout',
+        'done': false,
+      },
+      {
+        'title': '$studentId - $studentName',
+        'subtitle': 'Pemilik aplikasi',
+        'done': false,
+      },
+    ];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Flutter UI Fundamentals'),
@@ -39,6 +63,7 @@ class HomePage extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
+              // ================= Kartu Profil (Tahap 5 & 7) =================
               Card(
                 elevation: 5,
                 shape: RoundedRectangleBorder(
@@ -54,9 +79,7 @@ class HomePage extends StatelessWidget {
                           'assets/images/profile.jpeg',
                         ),
                       ),
-
                       const SizedBox(height: 20),
-
                       const Text(
                         studentName,
                         textAlign: TextAlign.center,
@@ -65,9 +88,7 @@ class HomePage extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-
                       const SizedBox(height: 8),
-
                       const Text(
                         studentId,
                         style: TextStyle(
@@ -75,9 +96,7 @@ class HomePage extends StatelessWidget {
                           color: Colors.grey,
                         ),
                       ),
-
                       const SizedBox(height: 8),
-
                       const Text(
                         'Mahasiswa PTI Undiksha',
                         style: TextStyle(fontSize: 16),
@@ -89,6 +108,7 @@ class HomePage extends StatelessWidget {
 
               const SizedBox(height: 20),
 
+              // ================= Stat Cards (Tahap 6 & 8) =================
               Row(
                 children: [
                   buildStatCard(
@@ -113,6 +133,7 @@ class HomePage extends StatelessWidget {
 
               const SizedBox(height: 20),
 
+              // ================= Ringkasan (Tahap 7) =================
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
@@ -147,41 +168,98 @@ class HomePage extends StatelessWidget {
 
               const SizedBox(height: 20),
 
+              // ================= Greeting Card / Input State (Tahap 9) =================
               const GreetingCard(),
 
               const SizedBox(height: 20),
 
+              // ================= Info Cards (Tahap 7) =================
               Card(
-                child: ListTile(
-                  leading: const Icon(Icons.email, color: Colors.blue),
-                  title: const Text('Email'),
-                  subtitle: const Text(
-                    'darmawan@student.undiksha.ac.id',
-                  ),
+                child: const ListTile(
+                  leading: Icon(Icons.email, color: Colors.blue),
+                  title: Text('Email'),
+                  subtitle: Text('darmawan@student.undiksha.ac.id'),
                 ),
               ),
 
               const SizedBox(height: 10),
 
               Card(
-                child: ListTile(
-                  leading: const Icon(Icons.location_on, color: Colors.red),
-                  title: const Text('Lokasi'),
-                  subtitle: const Text('Karangasem, Bali'),
+                child: const ListTile(
+                  leading: Icon(Icons.location_on, color: Colors.red),
+                  title: Text('Lokasi'),
+                  subtitle: Text('Karangasem, Bali'),
                 ),
               ),
 
               const SizedBox(height: 10),
 
               Card(
-                child: ListTile(
-                  leading: const Icon(Icons.school, color: Colors.green),
-                  title: const Text('Program Studi'),
-                  subtitle: const Text(
-                    'Pendidikan Teknik Informatika',
+                child: const ListTile(
+                  leading: Icon(Icons.school, color: Colors.green),
+                  title: Text('Program Studi'),
+                  subtitle: Text('Pendidikan Teknik Informatika'),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // ================= TAHAP 10: Collection List (ListView.builder) =================
+              Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Identitas tetap tampil di atas daftar
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Text(
+                          'Daftar Topik Pembelajaran\n$studentId - $studentName',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const Divider(),
+                      // ListView.builder untuk merender collection topics
+                      ListView.builder(
+                        shrinkWrap: true, // Membatasi tinggi ListView agar mengikuti isi
+                        physics: const NeverScrollableScrollPhysics(), // Menyerahkan scroll ke SingleChildScrollView utama
+                        itemCount: topics.length,
+                        itemBuilder: (context, index) {
+                          final item = topics[index];
+                          return ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: Icon(
+                              item['done'] == true
+                                  ? Icons.check_circle
+                                  : Icons.circle_outlined,
+                              color: item['done'] == true
+                                  ? Colors.green
+                                  : Colors.grey,
+                            ),
+                            title: Text(
+                              item['title'] as String,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            subtitle: Text(item['subtitle'] as String),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ),
               ),
+
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -273,16 +351,12 @@ class _GreetingCardState extends State<GreetingCard> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             const SizedBox(height: 10),
-
             const Text(
               '$studentId - $studentName',
               textAlign: TextAlign.center,
             ),
-
             const SizedBox(height: 15),
-
             TextField(
               controller: controller,
               decoration: const InputDecoration(
@@ -291,16 +365,12 @@ class _GreetingCardState extends State<GreetingCard> {
                 hintText: 'Contoh: Halo Flutter',
               ),
             ),
-
             const SizedBox(height: 15),
-
             ElevatedButton(
               onPressed: tampilkanPesan,
               child: const Text('Tampilkan'),
             ),
-
             const SizedBox(height: 15),
-
             Text(
               message,
               style: const TextStyle(
