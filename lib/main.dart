@@ -9,7 +9,7 @@ void main() {
   runApp(const MyApp());
 }
 
-// Function pembaca JSON statik (Tahap 12)
+// Function pembaca JSON statik
 Future<Map<String, dynamic>> loadStudentData() async {
   final jsonString = await rootBundle.loadString(
     'assets/data/student_data.json',
@@ -29,411 +29,178 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const HomePage(),
+      home: const DashboardPage(), // Memanggil DashboardPage sesuai Tahap 13
     );
   }
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+// 1. Membuat StatefulWidget bernama DashboardPage
+class DashboardPage extends StatefulWidget {
+  const DashboardPage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<DashboardPage> createState() => _DashboardPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _DashboardPageState extends State<DashboardPage> {
+  // 2. Deklarasikan late Future<Map<String, dynamic>> studentFuture
+  late Future<Map<String, dynamic>> studentFuture;
+
   @override
   void initState() {
     super.initState();
-    // Membaca file JSON statik saat pertama kali dijalankan (Tahap 12)
-    loadStudentData().then((data) {
-      debugPrint('=== VERIFIKASI TAHAP 12 ===');
-      debugPrint('JSON berhasil dimuat: ${data['student']}');
-      debugPrint('Jumlah courses: ${(data['courses'] as List).length}');
-    }).catchError((error) {
-      debugPrint('Error saat memuat JSON: $error');
-    });
+    // 3. Inisialisasikan future satu kali di initState()
+    studentFuture = loadStudentData();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Data collection topics
-    final List<Map<String, dynamic>> topics = [
-      {
-        'title': 'Git & GitHub',
-        'subtitle': 'Version control',
-        'done': true,
-      },
-      {
-        'title': 'Dart Fundamentals',
-        'subtitle': 'Language basics',
-        'done': true,
-      },
-      {
-        'title': 'Flutter UI Fundamentals',
-        'subtitle': 'Widgets & layout',
-        'done': false,
-      },
-      {
-        'title': '$studentId - $studentName',
-        'subtitle': 'Pemilik aplikasi',
-        'done': false,
-      },
-    ];
-
-    final int completed = topics.where((item) => item['done'] == true).length;
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Flutter UI Fundamentals'),
+        title: const Text('Learning Dashboard'),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // ================= Kartu Profil =================
-              Card(
-                elevation: 5,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
+      // 4. Menggunakan FutureBuilder untuk menangani UI asynchronous
+      body: FutureBuilder<Map<String, dynamic>>(
+        future: studentFuture,
+        builder: (context, snapshot) {
+          // Kondisi saat data masih dimuat
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          // Kondisi jika terjadi error
+          if (snapshot.hasError) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'Gagal memuat data: ${snapshot.error}',
+                  style: const TextStyle(color: Colors.red),
+                  textAlign: TextAlign.center,
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    children: [
-                      const CircleAvatar(
-                        radius: 60,
-                        backgroundImage: AssetImage(
-                          'assets/images/profile.jpeg',
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      const Text(
-                        studentName,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        studentId,
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Mahasiswa PTI Undiksha',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    ],
+              ),
+            );
+          }
+
+          // 5. Mengambil student dan courses dari hasil JSON
+          final data = snapshot.data!;
+          final student = data['student'] as Map<String, dynamic>;
+          final courses = data['courses'] as List<dynamic>;
+
+          return Column(
+            children: [
+              // Identitas Mahasiswa di bagian atas list
+              Card(
+                margin: const EdgeInsets.all(16),
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ListTile(
+                  leading: const CircleAvatar(
+                    backgroundColor: Colors.blue,
+                    child: Icon(Icons.person, color: Colors.white),
+                  ),
+                  title: Text(
+                    student['name'] as String,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  subtitle: Text(
+                    student['nim'] as String,
+                    style: TextStyle(
+                      color: Colors.grey.shade700,
+                      fontSize: 14,
+                    ),
                   ),
                 ),
               ),
 
-              const SizedBox(height: 20),
+              // Expanded memberikan ruang vertikal terukur pada ListView di dalam Column
+              Expanded(
+                child: ListView.builder(
+                  itemCount: courses.length,
+                  itemBuilder: (context, index) {
+                    final course = courses[index] as Map<String, dynamic>;
+                    final String status = course['status'] as String;
 
-              // ================= Stat Cards =================
-              Row(
-                children: [
-                  buildStatCard('15', 'Widget', Icons.widgets),
-                  const SizedBox(width: 8),
-                  buildStatCard('8', 'Layout', Icons.view_quilt),
-                  const SizedBox(width: 8),
-                  buildStatCard('3', 'State', Icons.sync),
-                ],
-              ),
-
-              const SizedBox(height: 20),
-
-              // ================= Ringkasan =================
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(15),
-                  border: Border.all(color: Colors.blue),
-                ),
-                child: const Column(
-                  children: [
-                    Icon(
-                      Icons.lightbulb,
-                      color: Colors.orange,
-                      size: 40,
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      'Ringkasan',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                    return Card(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 6,
                       ),
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      'Saya memiliki minat dalam pemrograman mobile menggunakan Flutter karena mampu membangun aplikasi yang modern, responsif, dan bermanfaat dalam bidang pendidikan.',
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              // ================= Greeting Card =================
-              const GreetingCard(),
-
-              const SizedBox(height: 20),
-
-              // ================= Info Cards =================
-              const Card(
-                child: ListTile(
-                  leading: Icon(Icons.email, color: Colors.blue),
-                  title: Text('Email'),
-                  subtitle: Text('darmawan@student.undiksha.ac.id'),
-                ),
-              ),
-
-              const SizedBox(height: 10),
-
-              const Card(
-                child: ListTile(
-                  leading: Icon(Icons.location_on, color: Colors.red),
-                  title: Text('Lokasi'),
-                  subtitle: Text('Karangasem, Bali'),
-                ),
-              ),
-
-              const SizedBox(height: 10),
-
-              const Card(
-                child: ListTile(
-                  leading: Icon(Icons.school, color: Colors.green),
-                  title: Text('Program Studi'),
-                  subtitle: Text('Pendidikan Teknik Informatika'),
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              // ================= Daftar Topik (Tahap 11) =================
-              Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '$studentId - $studentName',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: ListTile(
+                        leading: Icon(
+                          status == 'done'
+                              ? Icons.check_circle
+                              : (status == 'active'
+                                  ? Icons.play_circle_fill
+                                  : Icons.schedule),
+                          color: status == 'done'
+                              ? Colors.green
+                              : (status == 'active'
+                                  ? Colors.blue
+                                  : Colors.orange),
+                        ),
+                        title: Text(
+                          course['title'] as String,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        subtitle: Text(
+                          'Kode: ${course['code']} • ${course['credits']} SKS',
+                        ),
+                        trailing: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: status == 'done'
+                                ? Colors.green.shade50
+                                : (status == 'active'
+                                    ? Colors.blue.shade50
+                                    : Colors.orange.shade50),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color: status == 'done'
+                                  ? Colors.green
+                                  : (status == 'active'
+                                      ? Colors.blue
+                                      : Colors.orange),
+                            ),
+                          ),
+                          child: Text(
+                            status,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: status == 'done'
+                                  ? Colors.green.shade800
+                                  : (status == 'active'
+                                      ? Colors.blue.shade800
+                                      : Colors.orange.shade800),
+                            ),
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '$completed dari ${topics.length} topik selesai',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.blue.shade700,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      const Divider(),
-                      const SizedBox(height: 6),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: topics.length,
-                        itemBuilder: (context, index) {
-                          final item = topics[index];
-                          final bool isDone = item['done'] == true;
-
-                          return Card(
-                            elevation: 2,
-                            margin: const EdgeInsets.symmetric(vertical: 6),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: ListTile(
-                              leading: Icon(
-                                isDone ? Icons.check_circle : Icons.schedule,
-                                color: isDone ? Colors.green : Colors.orange,
-                              ),
-                              title: Text(
-                                item['title'] as String,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              subtitle: Text(item['subtitle'] as String),
-                              trailing: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: isDone
-                                      ? Colors.green.shade50
-                                      : Colors.orange.shade50,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: isDone ? Colors.green : Colors.orange,
-                                  ),
-                                ),
-                                child: Text(
-                                  isDone ? 'Selesai' : 'Belum',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: isDone
-                                        ? Colors.green.shade800
-                                        : Colors.orange.shade800,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
               ),
-
-              const SizedBox(height: 20),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildStatCard(
-    String value,
-    String label,
-    IconData icon,
-  ) {
-    return Expanded(
-      child: Card(
-        elevation: 3,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: 16,
-            horizontal: 10,
-          ),
-          child: Column(
-            children: [
-              Icon(
-                icon,
-                size: 32,
-                color: Colors.blue,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 5),
-              Text(label),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class GreetingCard extends StatefulWidget {
-  const GreetingCard({super.key});
-
-  @override
-  State<GreetingCard> createState() => _GreetingCardState();
-}
-
-class _GreetingCardState extends State<GreetingCard> {
-  final TextEditingController controller = TextEditingController();
-
-  String message = 'Belum ada pesan';
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
-  void tampilkanPesan() {
-    setState(() {
-      if (controller.text.trim().isEmpty) {
-        message = 'Input masih kosong';
-      } else {
-        message = controller.text.trim();
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            const Text(
-              'Greeting Card',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              '$studentId - $studentName',
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 15),
-            TextField(
-              controller: controller,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Masukkan Pesan',
-                hintText: 'Contoh: Halo Flutter',
-              ),
-            ),
-            const SizedBox(height: 15),
-            ElevatedButton(
-              onPressed: tampilkanPesan,
-              child: const Text('Tampilkan'),
-            ),
-            const SizedBox(height: 15),
-            Text(
-              message,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
