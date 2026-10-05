@@ -23,28 +23,28 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Tahap 10: NavigationBar',
+      title: 'Tahap 11: Adaptive Navigation',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF1E88E5),
         ),
         useMaterial3: true,
       ),
-      home: const MainPage(),
+      home: const AdaptiveMainShell(),
     );
   }
 }
 
-// ================= MAIN SCREEN DENGAN NAVIGATIONBAR =================
-class MainPage extends StatefulWidget {
-  const MainPage({super.key});
+// ================= SHELL UTAMA DENGAN ADAPTIVE NAVIGATION =================
+class AdaptiveMainShell extends StatefulWidget {
+  const AdaptiveMainShell({super.key});
 
   @override
-  State<MainPage> createState() => _MainPageState();
+  State<AdaptiveMainShell> createState() => _AdaptiveMainShellState();
 }
 
-class _MainPageState extends State<MainPage> {
-  int _currentIndex = 0;
+class _AdaptiveMainShellState extends State<AdaptiveMainShell> {
+  int _selectedIndex = 0; // State index aktif tetap tersimpan saat resize/rotasi
   late Future<Map<String, dynamic>> _studentFuture;
 
   @override
@@ -55,63 +55,178 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FB),
-      body: FutureBuilder<Map<String, dynamic>>(
-        future: _studentFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+    return FutureBuilder<Map<String, dynamic>>(
+      future: _studentFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
 
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
+        if (snapshot.hasError) {
+          return Scaffold(
+            body: Center(child: Text('Error: ${snapshot.error}')),
+          );
+        }
 
-          final data = snapshot.data!;
-          final courses = data['courses'] as List<dynamic>;
+        final data = snapshot.data!;
+        final courses = data['courses'] as List<dynamic>;
 
-          // Daftar 3 Halaman Utama
-          final List<Widget> pages = [
-            HomeTab(courses: courses),
-            CoursesTab(courses: courses),
-            const ProfileTab(),
-          ];
+        // Tiga halaman utama
+        final List<Widget> pages = [
+          HomeTab(courses: courses),
+          CoursesTab(courses: courses),
+          const ProfileTab(),
+        ];
 
-          return SafeArea(child: pages[_currentIndex]);
-        },
-      ),
-      // IMPLEMENTASI NAVIGATIONBAR MATERIAL 3
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (int index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.school_outlined),
-            selectedIcon: Icon(Icons.school),
-            label: 'Courses',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-      ),
+        // ================= IMPLEMENTASI TAHAP 11: LAYOUTBUILDER SHELL =================
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final bool isCompactOrMedium = constraints.maxWidth < 840;
+
+            // KONDISI 1: COMPACT & MEDIUM (< 840 px) -> Menggunakan NavigationBar di bawah
+            if (isCompactOrMedium) {
+              return Scaffold(
+                backgroundColor: const Color(0xFFF5F7FB),
+                appBar: AppBar(
+                  title: Text(
+                    'Tahap 11: Adaptive Nav (< 840px)',
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  centerTitle: true,
+                  backgroundColor: Colors.blue.shade700,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                ),
+                body: SafeArea(child: pages[_selectedIndex]),
+                bottomNavigationBar: NavigationBar(
+                  selectedIndex: _selectedIndex,
+                  onDestinationSelected: (index) {
+                    setState(() => _selectedIndex = index);
+                  },
+                  destinations: const [
+                    NavigationDestination(
+                      icon: Icon(Icons.home_outlined),
+                      selectedIcon: Icon(Icons.home),
+                      label: 'Home',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.school_outlined),
+                      selectedIcon: Icon(Icons.school),
+                      label: 'Courses',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.person_outline),
+                      selectedIcon: Icon(Icons.person),
+                      label: 'Profile',
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            // KONDISI 2: EXPANDED (>= 840 px) -> Menggunakan NavigationRail di samping kiri
+            return Scaffold(
+              backgroundColor: const Color(0xFFF5F7FB),
+              body: SafeArea(
+                child: Row(
+                  children: [
+                    NavigationRail(
+                      selectedIndex: _selectedIndex,
+                      onDestinationSelected: (index) {
+                        setState(() => _selectedIndex = index);
+                      },
+                      labelType: NavigationRailLabelType.all,
+                      leading: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12.0),
+                        child: Column(
+                          children: [
+                            const CircleAvatar(
+                              radius: 20,
+                              backgroundImage:
+                                  AssetImage('assets/images/profile.jpeg'),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              studentId,
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue.shade900,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      destinations: const [
+                        NavigationRailDestination(
+                          icon: Icon(Icons.home_outlined),
+                          selectedIcon: Icon(Icons.home),
+                          label: Text('Home'),
+                        ),
+                        NavigationRailDestination(
+                          icon: Icon(Icons.school_outlined),
+                          selectedIcon: Icon(Icons.school),
+                          label: Text('Courses'),
+                        ),
+                        NavigationRailDestination(
+                          icon: Icon(Icons.person_outline),
+                          selectedIcon: Icon(Icons.person),
+                          label: Text('Profile'),
+                        ),
+                      ],
+                    ),
+                    const VerticalDivider(thickness: 1, width: 1),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 14,
+                            ),
+                            color: Colors.blue.shade700,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  'Tahap 11: Adaptive Nav (Expanded >= 840px)',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  '$studentName ($studentId)',
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Expanded(child: pages[_selectedIndex]),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+        // ==============================================================================
+      },
     );
   }
 }
 
-// 1. DESTINASI TAB HOME
+// 1. KONTEN TAB HOME
 class HomeTab extends StatelessWidget {
   final List<dynamic> courses;
   const HomeTab({super.key, required this.courses});
@@ -128,7 +243,6 @@ class HomeTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Identitas di Home
           Card(
             elevation: 2,
             shape: RoundedRectangleBorder(
@@ -162,6 +276,13 @@ class HomeTab extends StatelessWidget {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
+                        Text(
+                          'S1 Pendidikan Teknik Informatika • Semester 5',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.blue.shade800,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -180,7 +301,7 @@ class HomeTab extends StatelessWidget {
               Expanded(
                 child: _buildMetricCard(
                   'Total Topik',
-                  '${courses.length}',
+                  '${courses.length} Materi',
                   Icons.menu_book,
                   Colors.blue,
                 ),
@@ -188,7 +309,7 @@ class HomeTab extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: _buildMetricCard(
-                  'Beban SKS',
+                  'Total SKS',
                   '$totalCredits SKS',
                   Icons.credit_card,
                   Colors.purple,
@@ -212,12 +333,12 @@ class HomeTab extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Icon(icon, color: color, size: 26),
+          Icon(icon, color: color, size: 24),
           const SizedBox(height: 6),
           Text(
             val,
             style: TextStyle(
-              fontSize: 15,
+              fontSize: 14,
               fontWeight: FontWeight.bold,
               color: color.shade800,
             ),
@@ -232,7 +353,7 @@ class HomeTab extends StatelessWidget {
   }
 }
 
-// 2. DESTINASI TAB COURSES
+// 2. KONTEN TAB COURSES
 class CoursesTab extends StatelessWidget {
   final List<dynamic> courses;
   const CoursesTab({super.key, required this.courses});
@@ -246,11 +367,11 @@ class CoursesTab extends StatelessWidget {
         children: [
           const Text(
             'Daftar Topik Pembelajaran',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
           Text(
-            'Tab Kursus Mahasiswa: $studentName',
+            'Katalog Kursus Mahasiswa: $studentName ($studentId)',
             style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
           ),
           const SizedBox(height: 12),
@@ -262,7 +383,7 @@ class CoursesTab extends StatelessWidget {
                 return Card(
                   margin: const EdgeInsets.only(bottom: 8),
                   child: ListTile(
-                    leading: const CircleAvatar(child: Icon(Icons.school)),
+                    leading: const CircleAvatar(child: Icon(Icons.school, size: 20)),
                     title: Text(
                       course['title'] ?? '',
                       style: const TextStyle(
@@ -285,7 +406,7 @@ class CoursesTab extends StatelessWidget {
   }
 }
 
-// 3. DESTINASI TAB PROFILE
+// 3. KONTEN TAB PROFILE
 class ProfileTab extends StatelessWidget {
   const ProfileTab({super.key});
 
@@ -305,7 +426,7 @@ class ProfileTab extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const CircleAvatar(
-                  radius: 42,
+                  radius: 40,
                   backgroundImage: AssetImage('assets/images/profile.jpeg'),
                 ),
                 const SizedBox(height: 14),
