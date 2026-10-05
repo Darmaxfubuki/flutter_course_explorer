@@ -2,13 +2,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
+const String studentName = 'I Ketut Darmawan Wirakusuma';
+const String studentId = '2415051021';
+
 void main() {
   runApp(const MyApp());
 }
 
-// Function asynchronous untuk memuat data JSON statik
-// CATATAN KASUS C: Untuk menguji error state pada Tahap 15,
-// ubah sementara path di bawah ini menjadi nama file yang salah (misal: 'assets/data/student_data_salah.json')
 Future<Map<String, dynamic>> loadStudentData() async {
   final jsonString = await rootBundle.loadString(
     'assets/data/student_data.json',
@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Learning Dashboard',
+      title: 'Course Explorer - Tahap 1',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF1E88E5),
@@ -48,7 +48,6 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void initState() {
     super.initState();
-    // Inisialisasi future tepat satu kali di initState()
     studentFuture = loadStudentData();
   }
 
@@ -58,7 +57,7 @@ class _DashboardPageState extends State<DashboardPage> {
       backgroundColor: const Color(0xFFF5F7FB),
       appBar: AppBar(
         title: const Text(
-          'Learning Dashboard',
+          'Tahap 1: Responsive Problem',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -70,53 +69,23 @@ class _DashboardPageState extends State<DashboardPage> {
         child: FutureBuilder<Map<String, dynamic>>(
           future: studentFuture,
           builder: (context, snapshot) {
-            // 1. Loading State
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+              return const Center(child: CircularProgressIndicator());
             }
 
-            // 2. KASUS C: Error State (Menangani kesalahan bila JSON gagal dimuat)
             if (snapshot.hasError) {
               return Center(
                 child: Padding(
                   padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.error_outline,
-                        color: Colors.red,
-                        size: 48,
-                      ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'Terjadi Kesalahan!',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Detail Error:\n${snapshot.error}',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(color: Colors.black87),
-                      ),
-                    ],
-                  ),
+                  child: Text('Error: ${snapshot.error}'),
                 ),
               );
             }
 
-            // 3. Success State
             final data = snapshot.data!;
             final student = data['student'] as Map<String, dynamic>;
             final courses = data['courses'] as List<dynamic>;
 
-            // Kalkulasi ringkasan data
             final int totalCourses = courses.length;
             final int totalCredits = courses.fold<int>(
               0,
@@ -133,7 +102,7 @@ class _DashboardPageState extends State<DashboardPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ================= Bagian 1: Identity & Profile Card =================
+                  // ================= Bagian Profile Card =================
                   Card(
                     elevation: 3,
                     shape: RoundedRectangleBorder(
@@ -144,36 +113,36 @@ class _DashboardPageState extends State<DashboardPage> {
                       child: Row(
                         children: [
                           const CircleAvatar(
-                            radius: 36,
+                            radius: 34,
                             backgroundImage:
                                 AssetImage('assets/images/profile.jpeg'),
                           ),
-                          const SizedBox(width: 16),
+                          const SizedBox(width: 14),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  student['name'] as String? ?? 'I Ketut Darmawan Wirakusuma',
+                                  studentName,
                                   style: const TextStyle(
-                                    fontSize: 18,
+                                    fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: 3),
                                 Text(
-                                  'NIM: ${student['nim'] ?? '2415051021'}',
+                                  'NIM: $studentId',
                                   style: TextStyle(
-                                    fontSize: 14,
+                                    fontSize: 13,
                                     color: Colors.grey.shade700,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: 3),
                                 Text(
                                   '${student['prodi'] ?? 'Pendidikan Teknik Informatika'} • Semester ${student['semester'] ?? 5}',
                                   style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: 11,
                                     color: Colors.blue.shade800,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -186,38 +155,58 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
                   ),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 14),
 
-                  // ================= KASUS A: Uji & Solusi RenderFlex Overflow =================
-                  // Kode Row dengan teks panjang yang dibungkus Expanded agar tidak overflow
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.amber.shade50,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.amber.shade300),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.info, color: Colors.amber, size: 20),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            '${student['nim']} - ${student['name']} - Ini adalah pengujian teks panjang yang aman dari RenderFlex overflow.',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.amber.shade900,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
+                  // ================= TAHAP 1: DEMO NYATA OVERFLOW VS RESPONSIF =================
+                  // 1. KASUS MASALAH: Container width 500 di dalam UnconstrainedBox
+                  // Memaksa ukuran 500 px dan memicu visual "A RenderFlex overflowed" (kuning-hitam)
+                  UnconstrainedBox(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      width: 500,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.amber.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.amber.shade800, width: 1.5),
+                      ),
+                      child: Text(
+                        '[Width: 500 Hard-coded OVERFLOW] $studentId - $studentName',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                          color: Colors.amber.shade900,
                         ),
-                      ],
+                      ),
                     ),
                   ),
 
                   const SizedBox(height: 10),
 
-                  // ================= Bagian 2: Summary Row =================
+                  // 2. KASUS SOLUSI: Menggunakan width: double.infinity
+                  // Mengikuti batasan lebar layar (constraints parent) tanpa menyebabkan overflow
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade100,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.green.shade800, width: 1.5),
+                    ),
+                    child: Text(
+                      '[Width: double.infinity Fleksibel Aman] $studentId - $studentName',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        color: Colors.green.shade900,
+                      ),
+                    ),
+                  ),
+                  // ===========================================================================
+
+                  const SizedBox(height: 14),
+
+                  // Bagian Summary Row
                   Row(
                     children: [
                       _buildSummaryCard(
@@ -226,14 +215,14 @@ class _DashboardPageState extends State<DashboardPage> {
                         icon: Icons.menu_book,
                         color: Colors.blue,
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 8),
                       _buildSummaryCard(
                         title: 'Total Beban',
                         value: '$totalCredits SKS',
                         icon: Icons.credit_card,
                         color: Colors.purple,
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 8),
                       _buildSummaryCard(
                         title: 'Selesai',
                         value: '$completedCourses Topik',
@@ -243,19 +232,18 @@ class _DashboardPageState extends State<DashboardPage> {
                     ],
                   ),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
 
-                  // Header List
                   const Text(
                     'Daftar Topik Pembelajaran',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 15,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
 
-                  // ================= Bagian 3: ListView.builder (Scrollable) =================
+                  // List Item Course
                   Expanded(
                     child: ListView.builder(
                       itemCount: courses.length,
@@ -263,17 +251,6 @@ class _DashboardPageState extends State<DashboardPage> {
                         final course = courses[index] as Map<String, dynamic>;
                         return _buildCourseItemCard(course);
                       },
-                    ),
-                  ),
-
-                  const SizedBox(height: 6),
-                  Center(
-                    child: Text(
-                      'Data list dimuat secara real-time dari JSON statik',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.grey.shade600,
-                      ),
                     ),
                   ),
                 ],
@@ -285,7 +262,6 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  // REUSABLE FUNCTION 1: Kartu Ringkasan
   Widget _buildSummaryCard({
     required String title,
     required String value,
@@ -294,7 +270,7 @@ class _DashboardPageState extends State<DashboardPage> {
   }) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -302,27 +278,27 @@ class _DashboardPageState extends State<DashboardPage> {
           boxShadow: [
             BoxShadow(
               color: Colors.black.withAlpha(8),
-              blurRadius: 6,
+              blurRadius: 4,
               offset: const Offset(0, 2),
             ),
           ],
         ),
         child: Column(
           children: [
-            Icon(icon, color: color, size: 24),
-            const SizedBox(height: 6),
+            Icon(icon, color: color, size: 22),
+            const SizedBox(height: 4),
             Text(
               value,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: 13,
+                fontSize: 12,
                 color: color.shade800,
               ),
             ),
             const SizedBox(height: 2),
             Text(
               title,
-              style: const TextStyle(fontSize: 11, color: Colors.grey),
+              style: const TextStyle(fontSize: 10, color: Colors.grey),
             ),
           ],
         ),
@@ -330,55 +306,44 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  // REUSABLE FUNCTION 2: Item List Card
   Widget _buildCourseItemCard(Map<String, dynamic> course) {
     final String status = course['status'] as String? ?? 'planned';
     final String grade = course['grade'] as String? ?? '-';
     final bool isDone = status == 'done';
     final bool isActive = status == 'active';
 
-    Color statusColor;
-    String statusLabel;
-    IconData statusIcon;
-
-    if (isDone) {
-      statusColor = Colors.green;
-      statusLabel = 'Selesai';
-      statusIcon = Icons.check_circle;
-    } else if (isActive) {
-      statusColor = Colors.blue;
-      statusLabel = 'Berjalan';
-      statusIcon = Icons.play_circle_fill;
-    } else {
-      statusColor = Colors.orange;
-      statusLabel = 'Rencana';
-      statusIcon = Icons.schedule;
-    }
+    Color statusColor =
+        isDone ? Colors.green : (isActive ? Colors.blue : Colors.orange);
+    String statusLabel =
+        isDone ? 'Selesai' : (isActive ? 'Berjalan' : 'Rencana');
+    IconData statusIcon = isDone
+        ? Icons.check_circle
+        : (isActive ? Icons.play_circle_fill : Icons.schedule);
 
     return Card(
-      elevation: 1.5,
-      margin: const EdgeInsets.symmetric(vertical: 6),
+      elevation: 1.2,
+      margin: const EdgeInsets.symmetric(vertical: 5),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: statusColor.withAlpha(30),
-          child: Icon(statusIcon, color: statusColor),
+          child: Icon(statusIcon, color: statusColor, size: 20),
         ),
         title: Text(
           course['title'] as String? ?? '',
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
         ),
         subtitle: Padding(
-          padding: const EdgeInsets.only(top: 4.0),
+          padding: const EdgeInsets.only(top: 2.0),
           child: Text(
             '${course['code']} • ${course['credits']} SKS • Nilai: $grade',
-            style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+            style: TextStyle(fontSize: 11, color: Colors.grey.shade700),
           ),
         ),
         trailing: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
             color: statusColor.withAlpha(25),
             borderRadius: BorderRadius.circular(8),
@@ -387,7 +352,7 @@ class _DashboardPageState extends State<DashboardPage> {
           child: Text(
             statusLabel,
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 10,
               fontWeight: FontWeight.bold,
               color: statusColor,
             ),
