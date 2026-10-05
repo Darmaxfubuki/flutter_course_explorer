@@ -23,27 +23,38 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Tahap 3: LayoutBuilder & Breakpoint',
+      title: 'Tahap 4: Expanded, Flexible, & Wrap',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF1E88E5),
         ),
         useMaterial3: true,
       ),
-      home: const DashboardPage(),
+      home: const Tahap4Page(),
     );
   }
 }
 
-class DashboardPage extends StatefulWidget {
-  const DashboardPage({super.key});
+class Tahap4Page extends StatefulWidget {
+  const Tahap4Page({super.key});
 
   @override
-  State<DashboardPage> createState() => _DashboardPageState();
+  State<Tahap4Page> createState() => _Tahap4PageState();
 }
 
-class _DashboardPageState extends State<DashboardPage> {
+class _Tahap4PageState extends State<Tahap4Page> {
   late Future<Map<String, dynamic>> studentFuture;
+
+  // Daftar minimal 6 keahlian (Skills) sesuai instruksi modul
+  final List<String> skills = [
+    'Flutter',
+    'Dart',
+    'Responsive Design',
+    'Git & GitHub',
+    'REST API',
+    'UI/UX Design',
+    'State Management',
+  ];
 
   @override
   void initState() {
@@ -57,7 +68,7 @@ class _DashboardPageState extends State<DashboardPage> {
       backgroundColor: const Color(0xFFF5F7FB),
       appBar: AppBar(
         title: const Text(
-          'Tahap 3: LayoutBuilder & Breakpoint',
+          'Tahap 4: Expanded & Wrap',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -66,352 +77,203 @@ class _DashboardPageState extends State<DashboardPage> {
         elevation: 0,
       ),
       body: SafeArea(
-        child: FutureBuilder<Map<String, dynamic>>(
-          future: studentFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ================= Kartu Identitas =================
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Row(
+                    children: [
+                      const CircleAvatar(
+                        radius: 26,
+                        backgroundImage:
+                            AssetImage('assets/images/profile.jpeg'),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              studentName,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              'NIM: $studentId',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey.shade700,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
 
-            if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            }
+              const SizedBox(height: 16),
 
-            final data = snapshot.data!;
-            final courses = data['courses'] as List<dynamic>;
+              // ================= BAGIAN 1: DEMO EXPANDED (FLEX 2:1) =================
+              const Text(
+                '1. Proporsi Panel Row (Expanded Flex 2 : 1)',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  // Panel A dengan Flex 2 (Mengambil 2/3 ruang)
+                  Expanded(
+                    flex: 2,
+                    child: _buildBox(
+                      label: 'Panel A (Flex: 2)',
+                      description: 'Mendapat 66.6% ruang',
+                      color: Colors.blue.shade100,
+                      borderColor: Colors.blue.shade700,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Panel B dengan Flex 1 (Mengambil 1/3 ruang)
+                  Expanded(
+                    flex: 1,
+                    child: _buildBox(
+                      label: 'Panel B (Flex: 1)',
+                      description: 'Mendapat 33.3% ruang',
+                      color: Colors.amber.shade100,
+                      borderColor: Colors.amber.shade700,
+                    ),
+                  ),
+                ],
+              ),
 
-            // ================= TAHAP 3: IMPLEMENTASI LAYOUTBUILDER =================
-            return LayoutBuilder(
-              builder: (context, constraints) {
-                // Breakpoint Praktikum
-                if (constraints.maxWidth < 600) {
-                  return CompactLayout(
-                    maxWidth: constraints.maxWidth,
-                    courses: courses,
-                  );
-                } else if (constraints.maxWidth < 840) {
-                  return MediumLayout(
-                    maxWidth: constraints.maxWidth,
-                    courses: courses,
-                  );
-                } else {
-                  return ExpandedLayout(
-                    maxWidth: constraints.maxWidth,
-                    courses: courses,
-                  );
-                }
-              },
-            );
-            // =======================================================================
-          },
+              const SizedBox(height: 20),
+
+              // ================= BAGIAN 2: PERBANDINGAN WRAP VS ROW =================
+              const Text(
+                '2. Menggunakan Wrap (Responsif Multi-Baris)',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Item chip otomatis turun ke baris berikutnya saat ruang horizontal habis:',
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.green.shade300),
+                ),
+                child: Wrap(
+                  spacing: 8.0, // Jarak horizontal antar chip
+                  runSpacing: 8.0, // Jarak vertikal antar baris chip
+                  children: skills
+                      .map(
+                        (e) => Chip(
+                          avatar: CircleAvatar(
+                            backgroundColor: Colors.green.shade700,
+                            child: const Icon(Icons.check,
+                                size: 14, color: Colors.white),
+                          ),
+                          label: Text(e),
+                          backgroundColor: Colors.white,
+                          side: BorderSide(color: Colors.green.shade200),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              const Text(
+                '3. Perbandingan: Menggunakan Row Biasa',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Row biasa memaksa seluruh item dalam satu baris horizontal:',
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.red.shade200),
+                ),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: skills
+                        .map(
+                          (e) => Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: Chip(
+                              label: Text(e),
+                              backgroundColor: Colors.white,
+                              side: BorderSide(color: Colors.red.shade200),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
-}
 
-// 1. WIDGET COMPACT LAYOUT (< 600 px: Phone)
-class CompactLayout extends StatelessWidget {
-  final double maxWidth;
-  final List<dynamic> courses;
-
-  const CompactLayout({
-    super.key,
-    required this.maxWidth,
-    required this.courses,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Banner Visual Compact (Oranye)
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: Colors.orange.shade50,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.orange.shade300, width: 1.5),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.phone_android, color: Colors.orange, size: 36),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Kategori: COMPACT LAYOUT (< 600 px)',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.orange,
-                          fontSize: 13,
-                        ),
-                      ),
-                      Text(
-                        '$studentId - $studentName',
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      Text(
-                        'Lebar Parent: ${maxWidth.toStringAsFixed(1)} px (1 Kolom Vertikal)',
-                        style: TextStyle(fontSize: 11, color: Colors.grey.shade700),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'Daftar Topik (Layout 1 Kolom):',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-          ),
-          const SizedBox(height: 8),
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: courses.length,
-            itemBuilder: (context, index) {
-              final item = courses[index] as Map<String, dynamic>;
-              return Card(
-                elevation: 1.5,
-                margin: const EdgeInsets.only(bottom: 8),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                child: ListTile(
-                  leading: const CircleAvatar(
-                    backgroundColor: Colors.orange,
-                    child: Icon(Icons.book, color: Colors.white, size: 18),
-                  ),
-                  title: Text(item['title'] ?? '', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-                  subtitle: Text('${item['code']} • ${item['credits']} SKS', style: const TextStyle(fontSize: 11)),
-                  trailing: Text(item['status'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.orange)),
-                ),
-              );
-            },
-          ),
-        ],
+  Widget _buildBox({
+    required String label,
+    required String description,
+    required Color color,
+    required Color borderColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: borderColor, width: 1.5),
       ),
-    );
-  }
-}
-
-// 2. WIDGET MEDIUM LAYOUT (600 - 839 px: Tablet Portrait / Large Phone)
-class MediumLayout extends StatelessWidget {
-  final double maxWidth;
-  final List<dynamic> courses;
-
-  const MediumLayout({
-    super.key,
-    required this.maxWidth,
-    required this.courses,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Banner Visual Medium (Biru)
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: Colors.blue.shade50,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.blue.shade300, width: 1.5),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.tablet, color: Colors.blue, size: 36),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Kategori: MEDIUM LAYOUT (600–839 px)',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
-                          fontSize: 13,
-                        ),
-                      ),
-                      Text(
-                        '$studentId - $studentName',
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      Text(
-                        'Lebar Parent: ${maxWidth.toStringAsFixed(1)} px (Tampilan Grid 2 Kolom)',
-                        style: TextStyle(fontSize: 11, color: Colors.grey.shade700),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+              color: borderColor,
             ),
           ),
-          const SizedBox(height: 16),
-          const Text(
-            'Daftar Topik (Layout 2 Kolom):',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-          ),
-          const SizedBox(height: 8),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: courses.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 2.8,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-            ),
-            itemBuilder: (context, index) {
-              final item = courses[index] as Map<String, dynamic>;
-              return Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      const CircleAvatar(
-                        backgroundColor: Colors.blue,
-                        child: Icon(Icons.school, color: Colors.white, size: 18),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(item['title'] ?? '', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                            Text('${item['code']} • ${item['credits']} SKS', style: const TextStyle(fontSize: 10, color: Colors.grey)),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// 3. WIDGET EXPANDED LAYOUT (>= 840 px: Tablet Landscape / Desktop)
-class ExpandedLayout extends StatelessWidget {
-  final double maxWidth;
-  final List<dynamic> courses;
-
-  const ExpandedLayout({
-    super.key,
-    required this.maxWidth,
-    required this.courses,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Banner Visual Expanded (Hijau)
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.teal.shade50,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.teal.shade300, width: 1.5),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.laptop_chromebook, color: Colors.teal, size: 40),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Kategori: EXPANDED LAYOUT (>= 840 px)',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.teal,
-                          fontSize: 14,
-                        ),
-                      ),
-                      Text(
-                        '$studentId - $studentName',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        'Lebar Parent: ${maxWidth.toStringAsFixed(1)} px (Tampilan Grid Luas 3 Kolom)',
-                        style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'Daftar Topik (Layout 3 Kolom Adaptif):',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-          ),
-          const SizedBox(height: 8),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: courses.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              childAspectRatio: 2.6,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-            ),
-            itemBuilder: (context, index) {
-              final item = courses[index] as Map<String, dynamic>;
-              return Card(
-                elevation: 2.5,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Row(
-                    children: [
-                      const CircleAvatar(
-                        backgroundColor: Colors.teal,
-                        child: Icon(Icons.workspace_premium, color: Colors.white, size: 20),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(item['title'] ?? '', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                            Text('${item['code']} • ${item['credits']} SKS • Status: ${item['status']}', style: const TextStyle(fontSize: 10, color: Colors.grey)),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
+          const SizedBox(height: 4),
+          Text(
+            description,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 11, color: Colors.grey.shade800),
           ),
         ],
       ),
