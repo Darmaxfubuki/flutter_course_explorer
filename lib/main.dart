@@ -14,39 +14,21 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Tahap 6: Scrollable Content & Keyboard',
+      title: 'Tahap 7: Navigasi Dasar',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF1E88E5),
         ),
         useMaterial3: true,
       ),
-      home: const Tahap6Page(),
+      home: const HomePage(),
     );
   }
 }
 
-class Tahap6Page extends StatefulWidget {
-  const Tahap6Page({super.key});
-
-  @override
-  State<Tahap6Page> createState() => _Tahap6PageState();
-}
-
-class _Tahap6PageState extends State<Tahap6Page> {
-  final TextEditingController _nameController =
-      TextEditingController(text: studentName);
-  final TextEditingController _nimController =
-      TextEditingController(text: studentId);
-  final TextEditingController _feedbackController = TextEditingController();
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _nimController.dispose();
-    _feedbackController.dispose();
-    super.dispose();
-  }
+// 1. WIDGET HOMEPAGE
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +36,7 @@ class _Tahap6PageState extends State<Tahap6Page> {
       backgroundColor: const Color(0xFFF5F7FB),
       appBar: AppBar(
         title: const Text(
-          'Tahap 6: Scrollable & Keyboard',
+          'Tahap 7: Home Page',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -62,212 +44,184 @@ class _Tahap6PageState extends State<Tahap6Page> {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      // ================= TAHAP 6: SINGLECHILDSCROLLVIEW =================
-      // Widget ini memastikan seluruh halaman bisa di-scroll dan aman saat keyboard muncul
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Identitas Header
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    children: [
-                      const CircleAvatar(
-                        radius: 34,
-                        backgroundImage:
-                            AssetImage('assets/images/profile.jpeg'),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              studentName,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              'NIM: $studentId',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey.shade700,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Pendidikan Teknik Informatika • Smt 5',
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.blue.shade800,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Card(
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
-
-              const SizedBox(height: 16),
-
-              // Banner Penjelasan Materi Tahap 6
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.blue.shade200),
-                ),
-                child: Row(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.info_outline, color: Colors.blue),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        'SingleChildScrollView memungkinkan form dan kartu yang panjang tetap dapat digulir ketika keyboard virtual aktif.',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.blue.shade900,
+                    const CircleAvatar(
+                      radius: 36,
+                      backgroundImage: AssetImage('assets/images/profile.jpeg'),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      studentName,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'NIM: $studentId',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade700,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Pendidikan Teknik Informatika',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.blue.shade800,
+                      ),
+                    ),
+                    const Divider(height: 32),
+                    const Text(
+                      'Halaman Utama (Navigation Stack Root)',
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 16),
+                    // Tombol Buka Detail menggunakan Navigator.push()
+                    SizedBox(
+                      width: double.infinity,
+                      height: 46,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const DetailPage(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.arrow_forward),
+                        label: const Text(
+                          'Buka Detail',
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue.shade700,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
-              const SizedBox(height: 16),
+// 2. WIDGET DETAILPAGE
+class DetailPage extends StatelessWidget {
+  const DetailPage({super.key});
 
-              // Kartu Informasi Profil Akademik
-              Card(
-                elevation: 1.5,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Padding(
-                  padding: EdgeInsets.all(14.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Informasi Akademik',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Divider(height: 16),
-                      Text('Program Studi: Pendidikan Teknik Informatika'),
-                      SizedBox(height: 4),
-                      Text('Fakultas: Teknik dan Kejuruan'),
-                      SizedBox(height: 4),
-                      Text('Fokus: Multimedia & Mobile Programming'),
-                    ],
-                  ),
-                ),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FB),
+      appBar: AppBar(
+        // AppBar otomatis memunculkan tombol back panah kiri bawaan
+        title: const Text(
+          'Detail Page',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.teal.shade700,
+        foregroundColor: Colors.white,
+        elevation: 0,
+      ),
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Card(
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
-
-              const SizedBox(height: 16),
-
-              // Form Interaktif dengan Beberapa Input
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Form Feedback Mata Kuliah',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                        ),
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.layers,
+                      size: 54,
+                      color: Colors.teal,
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Halaman Detail Berhasil Dibuka!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(height: 12),
-                      TextField(
-                        controller: _nameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Nama Lengkap',
-                          prefixIcon: Icon(Icons.person),
-                          border: OutlineInputBorder(),
-                        ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Identitas: $studentId - $studentName',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade800,
+                        fontWeight: FontWeight.w600,
                       ),
-                      const SizedBox(height: 12),
-                      TextField(
-                        controller: _nimController,
-                        decoration: const InputDecoration(
-                          labelText: 'NIM',
-                          prefixIcon: Icon(Icons.badge),
-                          border: OutlineInputBorder(),
+                    ),
+                    const Divider(height: 32),
+                    Text(
+                      'Screen ini ditumpuk di atas stack dengan Navigator.push(). Anda dapat kembali menggunakan tombol di bawah atau tombol back bawaan di AppBar kiri atas.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                    ),
+                    const SizedBox(height: 20),
+                    // Tombol Kembali menggunakan Navigator.pop()
+                    SizedBox(
+                      width: double.infinity,
+                      height: 46,
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        icon: const Icon(Icons.arrow_back),
+                        label: const Text(
+                          'Kembali ke Home',
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      TextField(
-                        controller: _feedbackController,
-                        maxLines: 4,
-                        decoration: const InputDecoration(
-                          labelText: 'Komentar / Feedback Kursus',
-                          alignLabelWithHint: true,
-                          prefixIcon: Icon(Icons.comment),
-                          border: OutlineInputBorder(),
-                          hintText: 'Tuliskan masukan Anda di sini...',
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 45,
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            FocusScope.of(context).unfocus(); // Tutup keyboard
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'Feedback dari $studentName ($studentId) berhasil dikirim!',
-                                ),
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.send),
-                          label: const Text('Kirim Masukan'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue.shade700,
-                            foregroundColor: Colors.white,
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.teal.shade800,
+                          side: BorderSide(color: Colors.teal.shade700, width: 1.5),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-
-              const SizedBox(height: 24),
-              Center(
-                child: Text(
-                  'Akhir Halaman Konten • $studentId',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
+            ),
           ),
         ),
       ),
