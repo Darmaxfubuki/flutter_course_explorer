@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Tahap 8: Passing Data',
+      title: 'Tahap 9: Returning Data',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF1E88E5),
@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// 1. HALAMAN DAFTAR KURSUS (LIST)
+// 1. HALAMAN DAFTAR KURSUS (MENERIMA NILAI HASIL / RESULT)
 class CourseListPage extends StatefulWidget {
   const CourseListPage({super.key});
 
@@ -58,7 +58,7 @@ class _CourseListPageState extends State<CourseListPage> {
       backgroundColor: const Color(0xFFF5F7FB),
       appBar: AppBar(
         title: const Text(
-          'Tahap 8: Course List',
+          'Tahap 9: Returning Data',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -132,12 +132,11 @@ class _CourseListPageState extends State<CourseListPage> {
                   const SizedBox(height: 14),
 
                   const Text(
-                    'Pilih Course untuk Melihat Detail:',
+                    'Pilih Course untuk Memberi Favorit:',
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
 
-                  // Daftar Course dengan Aksi Tap
                   Expanded(
                     child: ListView.builder(
                       itemCount: courses.length,
@@ -169,15 +168,31 @@ class _CourseListPageState extends State<CourseListPage> {
                               size: 16,
                               color: Colors.grey,
                             ),
-                            // PENGIRIMAN DATA MELALUI CONSTRUCTOR
-                            onTap: () {
-                              Navigator.push(
+                            // ================= TAHAP 9: AWAIT NAVIGATOR.PUSH =================
+                            onTap: () async {
+                              final result = await Navigator.push<bool>(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => CourseDetailPage(course: course),
+                                  builder: (_) =>
+                                      CourseDetailPage(course: course),
                                 ),
                               );
+
+                              // Jika kembali membawa result == true, tampilkan SnackBar
+                              if (result == true && context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Berhasil: ${course['title']} ditambahkan ke Favorit oleh $studentName!',
+                                    ),
+                                    backgroundColor: Colors.green.shade700,
+                                    duration: const Duration(seconds: 3),
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              }
                             },
+                            // =================================================================
                           ),
                         );
                       },
@@ -193,7 +208,7 @@ class _CourseListPageState extends State<CourseListPage> {
   }
 }
 
-// 2. HALAMAN DETAIL (MENERIMA DATA VIA CONSTRUCTOR)
+// 2. HALAMAN DETAIL (MENGEMBALIKAN NILAI VIA NAVIGATOR.POP)
 class CourseDetailPage extends StatelessWidget {
   final Map<String, dynamic> course;
 
@@ -204,16 +219,6 @@ class CourseDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String status = course['status'] as String? ?? 'planned';
-    final String grade = course['grade'] as String? ?? '-';
-    final bool isDone = status == 'done';
-    final bool isActive = status == 'active';
-
-    Color statusColor =
-        isDone ? Colors.green : (isActive ? Colors.blue : Colors.orange);
-    String statusLabel =
-        isDone ? 'Selesai' : (isActive ? 'Berjalan' : 'Rencana');
-
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FB),
       appBar: AppBar(
@@ -232,7 +237,6 @@ class CourseDetailPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Kartu Detail Kursus
               Card(
                 elevation: 3,
                 shape: RoundedRectangleBorder(
@@ -243,46 +247,6 @@ class CourseDetailPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.shade50,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.blue.shade200),
-                            ),
-                            child: Text(
-                              course['code'] ?? '',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue.shade800,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: statusColor.withAlpha(25),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                  color: statusColor.withAlpha(128)),
-                            ),
-                            child: Text(
-                              statusLabel,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: statusColor,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
                       Text(
                         course['title'] ?? '',
                         style: const TextStyle(
@@ -290,75 +254,63 @@ class CourseDetailPage extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const Divider(height: 24),
-                      _buildDetailRow(
-                          'Beban SKS', '${course['credits'] ?? 0} SKS'),
-                      const SizedBox(height: 8),
-                      _buildDetailRow('Nilai Akhir', grade),
-                      const SizedBox(height: 8),
-                      _buildDetailRow('Status Progres', statusLabel),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Kartu Konfirmasi Identitas Mahasiswa Pengakses
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Informasi Mahasiswa:',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey,
-                        ),
-                      ),
                       const SizedBox(height: 8),
                       Text(
-                        studentName,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        'NIM: $studentId',
+                        'Kode: ${course['code']} • Beban: ${course['credits']} SKS',
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.grey.shade700,
                         ),
                       ),
+                      const Divider(height: 24),
+                      Text(
+                        'Mahasiswa: $studentName ($studentId)',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.blue.shade800,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // ================= TAHAP 9: TOMBOL POP DENGAN RESULT =================
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            // Mengembalikan nilai true ke halaman sebelumnya
+                            Navigator.pop(context, true);
+                          },
+                          icon: const Icon(Icons.favorite, color: Colors.white),
+                          label: const Text(
+                            'Pilih / Favoritkan Course Ini',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.pink.shade600,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                      ),
+                      // ====================================================================
+
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 44,
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Kembali Tanpa Memilih'),
+                        ),
+                      ),
                     ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              // Tombol Kembali
-              SizedBox(
-                width: double.infinity,
-                height: 45,
-                child: OutlinedButton.icon(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.arrow_back),
-                  label: const Text('Kembali ke Daftar'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.blue.shade800,
-                    side: BorderSide(color: Colors.blue.shade700),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
                   ),
                 ),
               ),
@@ -366,25 +318,6 @@ class CourseDetailPage extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildDetailRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
-        ),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
     );
   }
 }
