@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Course Explorer - Tahap 1',
+      title: 'Course Explorer - Tahap 2',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF1E88E5),
@@ -53,11 +53,18 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    // ================= TAHAP 2: PEMBACAAN MEDIAQUERY =================
+    final mediaQuery = MediaQuery.of(context);
+    final size = mediaQuery.size;
+    final orientation = mediaQuery.orientation;
+    // Evaluasi breakpoint: jika width < 600 'Compact', selain itu 'Wide'
+    final String deviceCategory = size.width < 600 ? 'Compact' : 'Wide';
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FB),
       appBar: AppBar(
         title: const Text(
-          'Tahap 1: Responsive Problem',
+          'Tahap 2: MediaQuery Monitor',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -155,56 +162,100 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
                   ),
 
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 12),
 
-                  // ================= TAHAP 1: DEMO NYATA OVERFLOW VS RESPONSIF =================
-                  // 1. KASUS MASALAH: Container width 500 di dalam UnconstrainedBox
-                  // Memaksa ukuran 500 px dan memicu visual "A RenderFlex overflowed" (kuning-hitam)
-                  UnconstrainedBox(
-                    alignment: Alignment.centerLeft,
-                    child: Container(
-                      width: 500,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.amber.shade100,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.amber.shade800, width: 1.5),
-                      ),
-                      child: Text(
-                        '[Width: 500 Hard-coded OVERFLOW] $studentId - $studentName',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                          color: Colors.amber.shade900,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  // 2. KASUS SOLUSI: Menggunakan width: double.infinity
-                  // Mengikuti batasan lebar layar (constraints parent) tanpa menyebabkan overflow
+                  // ================= TAHAP 2: KARTU DISPLAY MEDIAQUERY =================
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Colors.green.shade100,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.green.shade800, width: 1.5),
+                      color: Colors.blue.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.blue.shade300, width: 1.5),
                     ),
-                    child: Text(
-                      '[Width: double.infinity Fleksibel Aman] $studentId - $studentName',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                        color: Colors.green.shade900,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'MediaQuery Monitor ($studentId)',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                                color: Colors.blue.shade900,
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: deviceCategory == 'Compact'
+                                    ? Colors.orange.shade100
+                                    : Colors.green.shade100,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: deviceCategory == 'Compact'
+                                      ? Colors.orange.shade700
+                                      : Colors.green.shade700,
+                                ),
+                              ),
+                              child: Text(
+                                deviceCategory,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  color: deviceCategory == 'Compact'
+                                      ? Colors.orange.shade900
+                                      : Colors.green.shade900,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Divider(height: 16),
+                        // Menampilkan width, height, orientation sesuai instruksi modul
+                        Text(
+                          'Width: ${size.width.toStringAsFixed(0)}',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Height: ${size.height.toStringAsFixed(0)}',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Orientation: $orientation',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Mahasiswa: $studentName ($studentId)',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.blue.shade800,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  // ===========================================================================
+                  // ====================================================================
 
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 12),
 
                   // Bagian Summary Row
                   Row(
